@@ -14,13 +14,21 @@ class Post(BaseModel):
 post_db = [
     {
         "title": "sunny day in yverdon",
-        "body":"I am by hrose satble in yverdon"
+        "body":"I am by hrose satble in yverdon",
+        "id": 2
     },
     {
         "title":"Indian food provider in Yverdon",
-        "body":"Now all you can eat indian for Fr19.99" 
+        "body":"Now all you can eat indian for Fr19.99" ,
+        "id": 3
     }
 ]
+
+def find_post(id):
+    for p in post_db:
+        print(p["id"])
+        if p["id"] == id:
+            return p
 
 
 @app.get("/")
@@ -38,7 +46,12 @@ def create_post(post: Post):
     post_db.append(post_dict)
     return {"data": post_dict}
 
+@app.get("/posts/latest")
+def get_latest_post():
+    post = post_db[len(post_db) - 1]
+    return {"latest_post" : post}
+
 @app.get("/posts/{id}")
-def get_post(id):
-    print(id)
-    return {"post_details" : f"Here is the post for {id}"}
+def get_post(id: int):
+    post = find_post(int(id))
+    return {"post_details" : post}
