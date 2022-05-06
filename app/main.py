@@ -37,9 +37,9 @@ def find_index_post(id):
 
 
 
-@app.get("/")
-def root():
-    return {"message":"Hello World Gogi Singh"}
+# @app.get("/")
+# def root():
+#     return {"message":"Hello World Gogi Singh"}
 
 @app.get("/posts")
 def get_posts():
