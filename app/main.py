@@ -35,79 +35,60 @@ while True:
         time.sleep(2)
     
 
-
-post_db = [
-    {
-        "title": "sunny day in yverdon",
-        "body":"I am by hrose satble in yverdon",
-        "id": 2
-    },
-    {
-        "title":"Indian food provider in Yverdon",
-        "body":"Now all you can eat indian for Fr19.99" ,
-        "id": 3
-    }
-]
-
-def find_post(id):
-    for p in post_db:
-        print(p["id"])
-        if p["id"] == id:
-            return p
-
-def find_index_post(id):
-    for i,p in enumerate(post_db):
-        if p['id'] == id:
-            return i
-
-
-
-# @app.get("/")
-# def root():
-#     return {"message":"Hello World Gogi Singh"}
+@app.get("/")
+def root():
+    return {"message":"Hello World Gogi Singh"}
 
 @app.get("/posts")
 def get_posts():
-    return {"data" : post_db}
+    cursor.execute(""" SELECT * FROM posts """)
+    posts = cursor.fetchall()
+
+    return {"data" : posts}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_post(post: Post):
-    post_dict = post.dict()
-    post_dict['id'] = randrange(0, 1000000)
-    post_db.append(post_dict)
-    return {"data": post_dict}
+    cursor.execute(""" INSERT INTO posts (title, body, published) VALUES (%s,%s,%s) RETURNING * """, (post.title, post.body, post.published))
+    new_post = cursor.fetchone()
+    conn.commit()
+
+    return {"data": new_post}
 
 @app.get("/posts/latest")
 def get_latest_post():
-    post = post_db[len(post_db) - 1]
+    cursor.execute(""" SELECT * FROM posts """)
+    posts = cursor.fetchall()
+    post = posts[len(posts) - 1]
+
     return {"latest_post" : post}
 
 @app.get("/posts/{id}")
 def get_post(id: int):
-    post = find_post(int(id))
+    cursor.execute(""" SELECT * from posts WHERE id = %s """, (str(id)))
+    post = cursor.fetchone()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
         detail=f"post with id: {id} not found")
+
     return {"post_details" : post}
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: int):
-    #delete post
-    # find the index in array that has required id
-    index = find_index_post(id)
-    if index == None:
+    
+    cursor.execute(""" DELETE FROM posts WHERE id = %s returning * """, (str(id),))
+    deleted_post = cursor.fetchone()
+    conn.commit()
+    if deleted_post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= f"post with {id} does not exist")
-    post_db.pop(index)
+    
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @app.put("/posts/{id}")
 def update_post(id:int, post:Post):
-    index = find_index_post(id)
-
-    if index == None:
+    cursor.execute(""" UPDATE posts SET title = %s, body = %s, published = %s WHERE id = %s""", (post.title, post.body, post.published, str(id)))
+    updated_post = cursor.fetchone()
+    conn.commit()
+    if updated_post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= f"post with {id} does not exist")
 
-    post_dict = post.dict()
-    post_dict['id'] = id
-    post_db[index] = post_dict
-    return {"data":post_dict}
+    return {"data": updated_post}
