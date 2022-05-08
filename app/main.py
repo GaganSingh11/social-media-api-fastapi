@@ -21,23 +21,23 @@ class Post(BaseModel):
     published: bool = True
     # rating: Optional[int] = None
 
-while True:
+# while True:
 
-    try:
-        conn = psycopg2.connect(
-            host = credentials.hostname,
-            dbname= credentials.database, 
-            port = credentials.port,
-            user= credentials.user, 
-            password= credentials.password,
-            cursor_factory=RealDictCursor
-            )
-        cursor = conn.cursor()
-        print ("Database connection was successful")
-        break
-    except Exception as error:
-        print(f'Connection to database failed. Error:{error}')
-        time.sleep(2)
+#     try:
+#         conn = psycopg2.connect(
+#             host = credentials.hostname,
+#             dbname= credentials.database, 
+#             port = credentials.port,
+#             user= credentials.user, 
+#             password= credentials.password,
+#             cursor_factory=RealDictCursor
+#             )
+#         cursor = conn.cursor()
+#         print ("Database connection was successful")
+#         break
+#     except Exception as error:
+#         print(f'Connection to database failed. Error:{error}')
+#         time.sleep(2)
     
 
 @app.get("/")
