@@ -1,123 +1,18 @@
-from typing import Optional, List
-from fastapi import Body, FastAPI, Response, status, HTTPException, Depends
-from pydantic import BaseModel
-from random import randrange
-import psycopg2
-from psycopg2.extras import RealDictCursor
-import time
-from sqlalchemy.orm import Session
-from . import models, schemas
-from .database import engine, get_db
 
-from . import credentials
+from typing import Optional, List
+from fastapi import FastAPI, Response, status, HTTPException, Depends
+from sqlalchemy.orm import Session
+from . import models, schemas, utils
+from .database import engine, get_db
+from .routers import post, user
 
 models.Base.metadata.create_all(bind = engine)
 
 app = FastAPI()
 
-# while True:
-
-#     try:
-#         conn = psycopg2.connect(
-#             host = credentials.hostname,
-#             dbname= credentials.database, 
-#             port = credentials.port,
-#             user= credentials.user, 
-#             password= credentials.password,
-#             cursor_factory=RealDictCursor
-#             )
-#         cursor = conn.cursor()
-#         print ("Database connection was successful")
-#         break
-#     except Exception as error:
-#         print(f'Connection to database failed. Error:{error}')
-#         time.sleep(2)
-    
-
 @app.get("/")
 def root():
     return {"message":"Hello World Gogi Singh"}
 
-@app.get("/posts", response_model=List[schemas.Post])
-def get_posts(db: Session = Depends(get_db)):
-    posts=db.query(models.Post).all()
-    # cursor.execute(""" SELECT * FROM posts """)
-    # posts = cursor.fetchall()
-
-    return posts
-
-@app.post("/posts", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
-def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
-    # cursor.execute(""" INSERT INTO posts (title, body, published) VALUES (%s,%s,%s) RETURNING * """, (post.title, post.body, post.published))
-    # new_post = cursor.fetchone()
-    # conn.commit()
-    new_post = models.Post(**post.dict()) # ** unpacks python dict
-    db.add(new_post)
-    db.commit()
-    db.refresh(new_post) #equal to returning * in sql
-
-    return new_post
-
-@app.get("/posts/latest", response_model=schemas.Post)
-def get_latest_post(db: Session = Depends(get_db)):
-    # cursor.execute(""" SELECT * FROM posts """)
-    # posts = cursor.fetchall()
-    posts=db.query(models.Post).all()
-    post = posts[len(posts) - 1]
-
-
-    return post
-
-@app.get("/posts/{id}", response_model=schemas.Post)
-def get_post(id: int, db: Session = Depends(get_db)):
-    # cursor.execute(""" SELECT * from posts WHERE id = %s """, (str(id)))
-    # post = cursor.fetchone()
-    post = db.query(models.Post).filter(models.Post.id == id).first()
-    
-    if not post:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
-        detail=f"post with id: {id} not found")
-
-    return post
-
-@app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int, db: Session = Depends(get_db)):
-    
-    # cursor.execute(""" DELETE FROM posts WHERE id = %s returning * """, (str(id),))
-    # deleted_post = cursor.fetchone()
-    # conn.commit()
-    post = db.query(models.Post).filter(models.Post.id == id)
-    if post.first() == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= f"post with {id} does not exist")
-    
-    post.delete(synchronize_session=False)
-    db.commit()
-    
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-@app.put("/posts/{id}", response_model=schemas.Post)
-def update_post(id:int, post:schemas.PostUpdate, db: Session = Depends(get_db)):
-    # cursor.execute(""" UPDATE posts SET title = %s, body = %s, published = %s WHERE id = %s""", (post.title, post.body, post.published, str(id)))
-    # updated_post = cursor.fetchone()
-    # conn.commit()
-    post_query = db.query(models.Post).filter(models.Post.id == id)
-    post_first = post_query.first()
-    if post_first == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= f"post with {id} does not exist")
-    
-    post_query.update(post.dict(), synchronize_session=False)
-    db.commit()
-
-    return post_query.first()
-
-
-# User path operations
-
-@app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
-def create_user(user:schemas.UserCreate, db: Session = Depends(get_db)):
-    new_user = models.User(**user.dict()) # ** unpacks python dict
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user) #equal to returning * in sql
-
-    return new_user
+app.include_router(post.router)
+app.include_router(user.router)
