@@ -1,13 +1,23 @@
+from datetime import datetime
 from pydantic import BaseModel
 
-class Post(BaseModel):
+class PostBase(BaseModel):
     title:str
     body:str
     published: bool = True
     # rating: Optional[int] = None
 
-class PostCreate(BaseModel):
+class PostCreate(PostBase):
     pass
 
-class PostUpdate(BaseModel):
+class PostUpdate(PostBase):
     pass
+
+
+
+class Post(PostBase):
+    id:int
+    created_at:datetime
+    
+    class Config:
+        orm_mode = True
