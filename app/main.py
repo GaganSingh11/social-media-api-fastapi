@@ -109,3 +109,15 @@ def update_post(id:int, post:schemas.PostUpdate, db: Session = Depends(get_db)):
     db.commit()
 
     return post_query.first()
+
+
+# User path operations
+
+@app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
+def create_user(user:schemas.UserCreate, db: Session = Depends(get_db)):
+    new_user = models.User(**user.dict()) # ** unpacks python dict
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user) #equal to returning * in sql
+
+    return new_user
