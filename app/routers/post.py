@@ -24,7 +24,7 @@ def create_post(post: schemas.PostCreate, db: Session = Depends(get_db), current
     # cursor.execute(""" INSERT INTO posts (title, body, published) VALUES (%s,%s,%s) RETURNING * """, (post.title, post.body, post.published))
     # new_post = cursor.fetchone()
     # conn.commit()
-    new_post = models.Post(**post.dict()) # ** unpacks python dict
+    new_post = models.Post(owner_id=current_user.id, **post.dict()) # ** unpacks python dict
     db.add(new_post)
     db.commit()
     db.refresh(new_post) #equal to returning * in sql

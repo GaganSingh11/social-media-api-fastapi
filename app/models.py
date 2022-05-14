@@ -1,7 +1,8 @@
 from enum import unique
 import string
+from tkinter import CASCADE
 from tokenize import String
-from sqlalchemy import TIMESTAMP, Column, Integer, String, Boolean, text
+from sqlalchemy import TIMESTAMP, Column, ForeignKey, Integer, String, Boolean, text
 from .database import Base
 
 
@@ -13,6 +14,7 @@ class Post(Base):
     body = Column(String, nullable=False)
     published = Column(Boolean, server_default='TRUE', nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default= text('now()') )
+    owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
 class User(Base):
     __tablename__ = 'users'
@@ -20,4 +22,6 @@ class User(Base):
     email = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default= text('now()') )
+
+
     
