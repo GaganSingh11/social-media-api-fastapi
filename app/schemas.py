@@ -32,6 +32,13 @@ class Post(PostBase):
     class Config:
         orm_mode = True
 
+class PostOut(BaseModel):
+    Post: Post
+    votes: int
+
+    class Config:
+        orm_mode = True
+
 # request in and out user model 
 class UserCreate(BaseModel):
     email:EmailStr
