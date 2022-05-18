@@ -1,8 +1,8 @@
-from enum import unique
-import string
-from tkinter import CASCADE
+# from enum import unique
+# import string
+# from tkinter import CASCADE
 from tokenize import String
-from rsa import PrivateKey
+# from rsa import PrivateKey
 from sqlalchemy import TIMESTAMP, Column, ForeignKey, Integer, PrimaryKeyConstraint, String, Boolean, text
 from sqlalchemy.orm import relationship
 from .database import Base
@@ -29,8 +29,8 @@ class User(Base):
 
 class Vote(Base):
     __tablename__ = 'votes'
-    user_id = Column(Integer, ForeignKey('users.id', ondelete=CASCADE), primary_key=True)
-    post_id = Column(Integer, ForeignKey('posts.id', ondelete=CASCADE), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"), primary_key=True)
+    post_id = Column(Integer, ForeignKey('posts.id', ondelete="CASCADE"), primary_key=True)
 
 
     
