@@ -24,7 +24,7 @@ app.add_middleware(
 
 @app.get("/")
 def root():
-    return {"message":"Welcome to Social Media API. Please follow the Documentation yo get started"}
+    return {"message":"Welcome to Social Media API. Please follow the Documentation yo get started on Heroku"}
 
 app.include_router(post.router)
 app.include_router(user.router)
