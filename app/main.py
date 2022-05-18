@@ -11,6 +11,17 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+origins = ["*"] # list of domain that are allowed to talk with this api
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 @app.get("/")
 def root():
     return {"message":"Welcome to Social Media API. Please follow the Documentation yo get started"}
