@@ -24,7 +24,8 @@ app.add_middleware(
 
 @app.get("/")
 def root():
-    return {"message":"Welcome to social media API. Please follow the documentation to get started. You may access documentation at /docs"}
+    # return {"message":"Welcome to social media API. Please follow the documentation to get started. You may access documentation at /docs"}
+    return {"message":"Deployed using CI/CD pipeline"}
 
 app.include_router(post.router)
 app.include_router(user.router)
